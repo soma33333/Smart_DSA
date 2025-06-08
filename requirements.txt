@@ -1,0 +1,11 @@
+flake8
+autopep8
+Flask-SQLAlchemy
+python-dotenv
+xhtml2pdf
+flask_migrate
+flask
+transformers
+huggingface_hub
+sentencepiece
+flask_cors
