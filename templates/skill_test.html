@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Skill Test</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f4f6f9;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+        h2, h4 {
+            color: #343a40;
+        }
+        .editor-box {
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        pre {
+            white-space: pre-wrap;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="alert alert-warning text-center">
+    Time Remaining: <span id="timer">30:00</span>
+    </div>
+
+    <div class="container mt-5">
+    <h2 class="text-center mb-4">DSA Skill Test</h2>
+    <form action="{{ url_for('take_skill_test') }}" method="POST">
+        <h4 class="mb-3">Multiple Choice Questions</h4>
+        {% for question in questions %}
+        <div class="question">
+            <p>{{ question.text }}</p>
+            {% for option in question.options %}
+    <div>
+        <input type="radio" name="q{{ question.id }}" value="{{ option[0]|lower }}" id="q{{ question.id }}_{{ option[0]|lower }}">
+        <label for="q{{ question.id }}_{{ option[0]|lower }}">{{ option }}</label>
+    </div>
+{% endfor %}
+        </div>
+        <hr class="my-4">
+    {% endfor %}
+        
+    <hr class="my-4">
+    <h4 class="mt-5">Coding Question 1 : 5 Marks</h4>
+    <p>Write a function to check if a number is prime.</p>
+    <div id="editor1" style="height: 200px; width: 100%; border:1px solid #ccc;"></div>
+    <textarea id="code1" name="code1" style="display:none;"></textarea>
+    <button type="button" class="btn btn-info mt-2" onclick="run_code_skill(1)">Run Code</button>
+    <pre id="output1" class="bg-dark text-white p-2 mt-2"></pre>
+
+    <h4 class="mt-5">Coding Question 2 : 5 Marks</h4>
+    <p>Write a function to return factorial of a number.</p>
+    <div id="editor2" style="height: 200px; width: 100%; border:1px solid #ccc;"></div>
+    <textarea id="code2" name="code2" style="display:none;"></textarea>
+    <button type="button" class="btn btn-info mt-2" onclick="run_code_skill(2)">Run Code</button>
+    <pre id="output2" class="bg-dark text-white p-2 mt-2"></pre>
+</div>
+    <button type="submit" class="btn btn-primary">Submit Test</button>
+    </form>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js"></script>
+    <script>
+    const editors = [ace.edit("editor1"), ace.edit("editor2")];
+    editors.forEach((editor, idx) => {
+        editor.session.setMode("ace/mode/python");
+        editor.setTheme("ace/theme/monokai");
+    });
+
+    function run_code_skill(num) {
+        const code = editors[num - 1].getValue();
+        document.getElementById(`code${num}`).value = code;
+
+        fetch("/run_code_skill", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code: code })
+        })
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById(`output${num}`).innerText = data.output;
+        });
+    }
+
+    //  Set code in textarea before form is submitted
+    document.querySelector("form").addEventListener("submit", function (e) {
+        document.getElementById("code1").value = editors[0].getValue();
+        document.getElementById("code2").value = editors[1].getValue();
+    });
+</script>
+<script>
+    let time = 30 * 60;
+    const timerDisplay = document.getElementById("timer");
+
+    const interval = setInterval(() => {
+        const minutes = Math.floor(time / 60);
+        const seconds = time % 60;
+        timerDisplay.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        time--;
+
+        if (time < 0) {
+            clearInterval(interval);
+            alert("Time's up! Submitting your test.");
+            document.querySelector('form').submit();
+        }
+    }, 1000);
+</script>
+
+
+</body>
+</html>

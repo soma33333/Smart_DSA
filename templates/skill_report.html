@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Skill Report</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-5">
+    <div class="container mt-5">
+    <div class="card shadow-lg p-4 text-center">
+        <h2 class="mb-3 text-primary">Skill Assessment Report</h2>
+        <h4 class="text-success">Total Score: {{ report.score }}/25</h4>      
+        <h4 class="text-success">User Expertise Level: {{ report.level }}</h4>
+        <hr>
+        <h5>MCQ Score: {{ report.mcq_score }}/15</h5>
+        <h5>Coding Score: {{ report.code_score }}/10</h5>
+        <hr>
+        <h5>Strong Concepts</h5>
+        <p class="text-success">{{ report.strong_concepts | join(', ') }}</p>
+
+        <h5>Weak Concepts</h5>
+        <p class="text-danger">{{ report.weak_concepts | join(', ') }}</p>
+
+        <h5 class="mt-4">Coding Feedback</h5>
+        <ul class="list-group">
+            {% for item in report.code_feedback %}
+                <li class="list-group-item">
+                    <strong>{{ item[0] }}</strong>: 
+                    {{ "✔️ Correct" if item[1] else "❌ Incorrect" }} - Output: {{ item[2] }}
+                </li>
+            {% endfor %}
+        </ul>
+
+        <div class="mt-4">
+            <h6 class="mb-2">Recommended Book:</h6>
+            <p class="fst-italic">{{ report.suggested_book }}</p>
+        </div>
+
+        <div class="mt-4">
+            <a href="{{ url_for('take_skill_test') }}" class="btn btn-primary ms-2">Retake Test</a>
+            <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+        </div>
+    </div>
+</div>
+
+    
+</div>
+</body>
+</html>
