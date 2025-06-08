@@ -24,9 +24,22 @@ from transformers import T5Tokenizer, T5ForConditionalGeneration
 from transformers import pipeline
 import torch
 
+from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, pipeline
+import torch
 
-from transformers import AutoTokenizer, AutoModelForCausalLM
-from transformers import AutoModelForSeq2SeqLM
+# Load deepseek model for code optimization and question generation
+MODEL_NAME = "deepseek-ai/deepseek-coder-1.3b-instruct"
+
+device = 0 if torch.cuda.is_available() else -1
+
+tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
+model = AutoModelForSeq2SeqLM.from_pretrained(MODEL_NAME, device_map="auto" if device == 0 else None)
+
+# Create pipelines for tasks
+code_opt_pipeline = pipeline("text2text-generation", model=model, tokenizer=tokenizer, device=device)
+question_gen_pipeline = pipeline("text2text-generation", model=model, tokenizer=tokenizer, device=device)
+error_explain_pipeline = pipeline("text2text-generation", model=model, tokenizer=tokenizer, device=device)
+
 
 
 
@@ -214,6 +227,33 @@ def run_code():
     except Exception as e:
         return jsonify({"error": f"{type(e).__name__}: {e}"})
 
+def optimize_code(code: str) -> str:
+    prompt = f"Optimize the following Python code without changing its output:\n\n{code}\n\nOptimized code:"
+    try:
+        result = code_opt_pipeline(prompt, max_length=512, do_sample=False)
+        optimized_code = result[0]['generated_text']
+        return optimized_code.strip()
+    except Exception as e:
+        return f"Error optimizing code: {e}"
+def generate_theory_questions(code: str) -> str:
+    prompt = f"Generate theory questions based on the following Python code:\n\n{code}\n\nQuestions:"
+    try:
+        result = question_gen_pipeline(prompt, max_length=512, do_sample=False)
+        questions = result[0]['generated_text']
+        return questions.strip()
+    except Exception as e:
+        return f"Error generating questions: {e}"
+        
+def explain_error(code: str, error_message: str,level:str) -> str:
+    prompt = f"Explain the following Python error for this code snippet:\n\nCode:\n{code}\n\nError:\n{error_message}\n\nExplanation for a {level} level:"
+    try:
+        result = error_explain_pipeline(prompt, max_length=512, do_sample=False)
+        explanation = result[0]['generated_text']
+        return explanation.strip()
+    except Exception as e:
+        return f"Error explaining the error: {e}"
+
+
 # Run Code (Skill)
 @app.route('/run_code_skill', methods=['POST'])
 def run_code_skill():
@@ -234,6 +274,29 @@ def run_code_skill():
     except Exception as e:
         output = str(e)
     return jsonify({"output": output})
+
+@app.route('/optimize_code', methods=['POST'])
+def optimize_code_api():
+    data = request.get_json()
+    code = data.get('code', '')
+    optimized = optimize_code(code)
+    return jsonify({'optimized_code': optimized})
+
+@app.route('/generate_questions', methods=['POST'])
+def generate_questions_api():
+    data = request.get_json()
+    code = data.get('code', '')
+    questions = generate_theory_questions(code)
+    return jsonify({'questions': questions})
+
+@app.route('/explain_error', methods=['POST'])
+def explain_error_api():
+    data = request.get_json()
+    code = data.get('code', '')
+    error_message = data.get('error', '')
+    level=data.get('level','')
+    explanation = explain_error(code, error_message,level)
+    return jsonify({'explanation': explanation})
 
 
 if __name__ == '__main__':
