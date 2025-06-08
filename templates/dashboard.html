@@ -236,7 +236,7 @@
         const code = editor.getValue().trim();
         console.log("Sending code to backend:", code);
 
-        fetch("https://44e6-35-229-212-62.ngrok-free.app/explain_error", {
+        fetch("/explain_error", {
             method: "POST",
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ code: code ,error: outputText, level: debugLevel })
@@ -266,7 +266,7 @@
     setLoading(optimizeBtn, true);
     console.log("Sending code to backend:", code);
       
-    fetch("https://44e6-35-229-212-62.ngrok-free.app/optimize_code", {
+    fetch("/optimize_code", {
         method: "POST",
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code: code })
@@ -317,7 +317,7 @@
     openModal();
     setLoading(generateTheoryBtn, true); // Optional: if you have a spinner
     console.log("Sending code to backend:", code);
-    fetch("https://44e6-35-229-212-62.ngrok-free.app/generate_theory", {
+    fetch("/generate_questions", {
         method: "POST",
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code: code })
