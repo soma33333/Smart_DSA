@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Python Learning Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        body {
+            background-color: #f8f9fa;
+            color: #212529;
+        }
+
+        .navbar {
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background-color: #ffffff;
+            border: 1px solid #dee2e6;
+            color: #212529;
+        }
+
+        .code-editor {
+            height: 300px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+        }
+
+        pre {
+            background-color: #f1f1f1;
+            color: #212529;
+            padding: 10px;
+            border-radius: 5px;
+            min-height: 80px;
+            white-space: pre-wrap;
+        }
+
+        .btn-custom {
+            background-color: #0d6efd;
+            color: white;
+        }
+
+        .btn-custom:hover {
+            background-color: #0b5ed7;
+        }
+
+        .output-label {
+            font-weight: bold;
+            margin-top: 15px;
+        }
+
+        /* Modal styles */
+        #optimizeModal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.6);
+            backdrop-filter: blur(3px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #optimizeModal .modal-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            width: 60%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+
+        #optimizeModal .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #333;
+        }
+
+        #optimizeModal button {
+            margin-top: 15px;
+        }
+
+        /* Disabled background scroll when modal open */
+        body.modal-open {
+            overflow: hidden;
+        }
+        #optimizeModal {
+            display: none;  /* Good: Should stay hidden on page load */
+        }
+
+    </style>
+</head>
+<body>
+<!-- Navigation Bar -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light px-4 shadow-sm">
+    <a class="navbar-brand" href="#">🐍 Smart DSA Learning in Python</a>
+    <div class="ms-auto">
+        <a href="{{ url_for('take_skill_test') }}" class="btn btn-outline-primary me-2">Take Skill Test</a>
+        <a href="{{ url_for('logout') }}" class="btn btn-outline-danger">Logout</a>
+    </div>
+</nav>
+
+<!-- Main Dashboard -->
+<div class="container">
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-white">
+            <h3>Welcome, {{ user.name }}</h3>
+        </div>
+        <div class="card-body">
+            <p><strong>Email:</strong> {{ user.email }}</p>
+            {% if user.skill_level %}
+                <p><strong>Skill Level:</strong> {{ user.skill_level }}</p>
+            {% else %}
+                <p><strong>Skill Test:</strong> Not Taken</p>
+                <a href="{{ url_for('take_skill_test') }}" class="btn btn-custom">Take Skill Test Now</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Live Coding Platform -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-white">
+            <h4>🧪 Try Your Python Code Below</h4>
+        </div>
+        <div class="card-body">
+            <div id="editor" class="code-editor"></div>
+            <button id="runBtn" onclick="runDashboardCode()" class="btn btn-success mt-3">▶️ Run Code</button>
+            <button id="optimizeBtn" class="btn btn-info mt-2" onclick="optimizeCode()">✨ Optimize Code</button>
+            <button id="generateTheoryBtn" class="btn btn-secondary ms-2">Generate Theory Questions</button>
+            <div class="output-label">Output:</div>
+            <pre id="output"></pre>
+            <br>
+            <button id="debugBtn" class="btn btn-warning" onclick="debugUserCode()">🔍 Debug Code</button>
+
+            <div id="debugOutput" class="mt-4 alert alert-info" style="white-space: pre-wrap;"></div>
+        </div>
+    </div>
+
+    <div class="mt-3" style="max-width: 220px;">
+        <label for="debugLevel">Choose Debug Level:</label>
+        <select id="debugLevel" class="form-select">
+            <option value="Beginner">Beginner</option>
+            <option value="Intermediate">Intermediate</option>
+        </select>
+    </div>
+</div>
+
+<!-- Optimize Modal -->
+<div id="optimizeModal" role="dialog" aria-modal="true" aria-labelledby="optimizeModalTitle" aria-describedby="optimizedResult">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeModal()" aria-label="Close">&times;</span>
+
+        <h5 id="optimizeModalTitle">🚀 Optimized Code</h5>
+        <pre id="optimizedResult">Loading...</pre>
+        <button id="replaceBtn" class="btn btn-primary mt-3">Replace in Editor</button>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js"></script>
+<script>
+    const editor = ace.edit("editor");
+    editor.session.setMode("ace/mode/python");
+    editor.setTheme("ace/theme/github");
+    editor.setOptions({
+        fontSize: "14pt",
+        showPrintMargin: false,
+    });
+
+    const outputDiv = document.getElementById("output");
+    const debugOutputDiv = document.getElementById("debugOutput");
+    const runBtn = document.getElementById("runBtn");
+    const optimizeBtn = document.getElementById("optimizeBtn");
+    const debugBtn = document.getElementById("debugBtn");
+    const modal = document.getElementById("optimizeModal");
+    const modalContent = document.getElementById("optimizedResult");
+    const replaceBtn = document.getElementById("replaceBtn");
+
+    function setLoading(button, loading) {
+        if (loading) {
+            button.disabled = true;
+            button.dataset.originalText = button.innerHTML;
+            button.innerHTML = "⏳ Please wait...";
+        } else {
+            button.disabled = false;
+            button.innerHTML = button.dataset.originalText;
+        }
+    }
+
+    function runDashboardCode() {
+        const code = editor.getValue();
+        outputDiv.innerText = "";
+        debugOutputDiv.innerText = "";
+        setLoading(runBtn, true);
+
+        fetch("/run_code", {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code: code })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                outputDiv.innerText = "❌ " + data.error;
+                debugOutputDiv.innerText = data.error;
+            } else {
+                outputDiv.innerText = data.output;
+                debugOutputDiv.innerText = "";
+            }
+        })
+        .catch(error => {
+            outputDiv.innerText = "⚠️ Could not run the code.";
+            console.error("Execution error:", error);
+        })
+        .finally(() => setLoading(runBtn, false));
+    }
+
+    function debugUserCode() {
+        const outputText = outputDiv.innerText;
+        const debugLevel = document.getElementById("debugLevel").value;
+
+        if (!outputText.includes("Traceback") && !outputText.includes("Error")) {
+            debugOutputDiv.innerText = "✅ No error found.";
+            return;
+        }
+
+        debugOutputDiv.innerText = "🔄 Analyzing error, please wait...";
+        setLoading(debugBtn, true);
+        const code = editor.getValue().trim();
+        console.log("Sending code to backend:", code);
+
+        fetch("/explain_error", {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code: code ,error: outputText, level: debugLevel })
+        })
+        .then(response => response.json())
+        .then(data => {
+            debugOutputDiv.innerText = data.message || "⚠️ No explanation received.";
+        })
+        .catch(error => {
+            debugOutputDiv.innerText = `⚠️ Error analyzing code.${error.message}`;
+            console.error("Debug error:", error);
+        })
+        .finally(() => setLoading(debugBtn, false));
+    }
+
+    function optimizeCode() {
+    const code = editor.getValue().trim();
+    if (!code) {
+        modalContent.innerText = "⚠️ Please type your code to get the optimized code.";
+        replaceBtn.style.display = "none";
+        openModal();
+        return;
+    }
+    modalContent.innerText = "⏳ Optimizing code, please wait...";
+    replaceBtn.style.display = "none";
+    openModal();
+    setLoading(optimizeBtn, true);
+    console.log("Sending code to backend:", code);
+      
+    fetch("/optimize_code", {
+        method: "POST",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: code })
+    })
+    .then(response => response.json())
+    .then(data => {
+        modalContent.innerText = data.optimized_code || "⚠️ No optimized code received.";
+        if (data.optimized_code) {
+            replaceBtn.style.display = "inline-block";
+            replaceBtn.onclick = () => {
+                editor.setValue(data.optimized_code, 1); // Cursor at end
+                closeModal();
+            };
+        } else {
+            replaceBtn.style.display = "none";
+        }
+    })
+    .catch(error => {
+        modalContent.innerText = `⚠️ Error optimizing code.${error.message}`;
+        replaceBtn.style.display = "none";
+        console.error("Optimization error:", error);
+    })
+    .finally(() => setLoading(optimizeBtn, false));
+}
+
+    function openModal() {
+        modal.style.display = "flex";
+        document.body.classList.add("modal-open");
+        // Optionally focus modal for accessibility
+    }
+
+    function closeModal() {
+        modal.style.display = "none";
+        document.body.classList.remove("modal-open");
+    }
+
+    function generateTheoryQuestions() {
+    const code = editor.getValue().trim();
+    if (!code) {
+        modalContent.innerText = "⚠️ Please type your code to generate theory questions.";
+        replaceBtn.style.display = "none";
+        openModal();
+        return;
+    }
+    document.getElementById("optimizeModalTitle").innerText = "🧠 Theory Questions";
+    modalContent.innerText = "⏳ Generating theory questions, please wait...";
+    replaceBtn.style.display = "none";
+    openModal();
+    setLoading(generateTheoryBtn, true); // Optional: if you have a spinner
+    console.log("Sending code to backend:", code);
+    fetch("/generate_questions", {
+        method: "POST",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: code })
+    })
+    .then(response => response.json())
+    .then(data => {
+        modalContent.innerText = data.questions || "⚠️ No questions generated.";
+        replaceBtn.style.display = "inline-block";
+        replaceBtn.onclick = () => {
+            closeModal();
+        };
+    })
+    .catch(error => {
+        modalContent.innerText = `⚠️ Error generating questions.${error.message}`;
+        replaceBtn.style.display = "none";
+        console.error("Question generation error:", error);
+    })
+    .finally(() => setLoading(generateTheoryBtn, false));
+}
+
+
+// Attach event listener
+document.getElementById("generateTheoryBtn").addEventListener("click", generateTheoryQuestions);
+
+</script>
+</body>
+</html>
