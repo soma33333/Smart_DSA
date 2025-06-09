@@ -273,7 +273,7 @@ def optimize_code(code: str) -> str:
 
         
 def generate_theory_questions(code: str) -> str:
-    prompt = f"""Analyze the following Python function and generate 2 theory-based questions about the concepts used in this code. Provide correct answers.
+    prompt = f"""Analyze the following Python function and generate 5 theory-based questions about the concepts used in this code example recursion. Provide correct answers.
                 Code:
                 {code}
             """
@@ -282,7 +282,7 @@ def generate_theory_questions(code: str) -> str:
         
         outputs = model.generate(
             **inputs,
-            max_length=300,
+            max_length=500,
             do_sample=False,
             pad_token_id=tokenizer.eos_token_id
         )
