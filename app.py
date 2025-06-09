@@ -232,8 +232,8 @@ def optimize_code(code: str) -> str:
             pad_token_id=tokenizer.eos_token_id
         )
         
-        optimized_code = tokenizer.decode(outputs[0], skip_special_tokens=True)
-
+        optimized = tokenizer.decode(outputs[0], skip_special_tokens=True)
+        optimized_code = optimized[len(prompt):].strip()
         
         return optimized_code.strip()
     except Exception as e:
@@ -241,7 +241,7 @@ def optimize_code(code: str) -> str:
 
         
 def generate_theory_questions(code: str) -> str:
-    prompt = f"You are a python expert.Generate theory questions with solutions, based on dsa concepts used in the following Python code:\n\n{code}\n\nQuestions:\n"
+    prompt = f"Generate theory questions with solutions, based on Data Structures and programming concepts used in the following Python code and not about the input or output:\n\n{code}\n\nQuestions:\n"
     try:
         # Encode input
         inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
@@ -276,15 +276,16 @@ def explain_error(code: str, error_message: str, level: str) -> str:
     
     try:
         inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
-        outputs = model.generate(**inputs, max_new_tokens=300, do_sample=False)
+        outputs = model.generate(
+            **inputs,
+            max_length=300,
+            do_sample=False,
+            pad_token_id=tokenizer.eos_token_id
+        )
         generated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
 
         # Remove the prompt part from generated_text to get clean explanation
         message = generated_text[len(prompt):].strip()
-
-        if not message:
-            return "⚠️ No explanation received."
-
         return message
 
     except Exception as e:
