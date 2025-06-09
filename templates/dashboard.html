@@ -238,7 +238,7 @@
 
         debugOutputDiv.innerText = "🔄 Analyzing error, please wait...";
         setLoading(debugBtn, true);
-        const code = editor.getValue().trim();
+        
         console.log("Sending code to backend:", code);
 
         fetch("/explain_error", {
