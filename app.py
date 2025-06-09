@@ -76,7 +76,8 @@ def register():
 def dashboard():
     user = {
         'name': USER_DATA['name'],
-        'skill': USER_DATA['skill_level']
+        'email': USER_DATA['email'],
+        'skill_level': USER_DATA['skill_level']
     }
     return render_template('dashboard.html', user=user)
 
