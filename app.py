@@ -278,15 +278,15 @@ def generate_theory_questions(code: str) -> str:
                 {code}
             """
     try:
-        inputs = starcoder_tokenizer(prompt, return_tensors="pt").to(starcoder_model.device)
-        outputs = starcoder_model.generate(
+        inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
+        
+        outputs = model.generate(
             **inputs,
-            max_length=512,
-            do_sample=True,
-            temperature=0.7,
-            pad_token_id=starcoder_tokenizer.eos_token_id
+            max_length=300,
+            do_sample=False,
+            pad_token_id=tokenizer.eos_token_id
         )
-        full_output = starcoder_tokenizer.decode(outputs[0], skip_special_tokens=True)
+        full_output = tokenizer.decode(outputs[0], skip_special_tokens=True)
         questions = full_output[len(prompt):].strip()
         return questions
 
@@ -309,14 +309,15 @@ def explain_error(code: str, error_message: str, level: str) -> str:
 
     
     try:
-        inputs = t5_tokenizer(prompt, return_tensors="pt").to(t5_model.device)
-        outputs = t5_model.generate(
+        inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
+        
+        outputs = model.generate(
             **inputs,
-            max_length=512,
+            max_length=300,
             do_sample=False,
-            pad_token_id=t5_tokenizer.eos_token_id
+            pad_token_id=tokenizer.eos_token_id
         )
-        generated_text = t5_tokenizer.decode(outputs[0], skip_special_tokens=True)
+        generated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
         message = generated_text[len(prompt):].strip()
         return message
 
