@@ -239,18 +239,45 @@ def evaluate_coding_answers(user_code):
 
     return score, results
 
-# Run Code
+import traceback
+import re
+
 @app.route('/run_code', methods=['POST'])
 def run_code():
     data = request.get_json()
     code = data.get("code", "")
+    output = io.StringIO()
+
     try:
-        output = io.StringIO()
         with contextlib.redirect_stdout(output):
             exec(code, {})
-        return jsonify({"output": output.getvalue()})
-    except Exception as e:
-        return jsonify({"error": f"{type(e).__name__}: {e}"})
+        return jsonify({"output": output.getvalue(), "highlighted_code": highlight_code(code)})
+    
+    except Exception:
+        error_trace = traceback.format_exc()
+        error_line = extract_error_line_number(error_trace)
+        highlighted = highlight_code(code, error_line)
+        return jsonify({
+            "error": error_trace,
+            "highlighted_code": highlighted
+        })
+
+def extract_error_line_number(trace):
+    # Match: File "<string>", line 3, in <module>
+    match = re.search(r'File "<string>", line (\d+)', trace)
+    return int(match.group(1)) if match else None
+
+def highlight_code(code, error_line=None):
+    lines = code.split('\n')
+    highlighted = []
+    for i, line in enumerate(lines, 1):
+        if i == error_line:
+            # Highlight with red background for error line
+            highlighted.append(f'<span style="background-color:#ffe6e6;color:red;"><b>{i:>3}: {line}</b></span>')
+        else:
+            highlighted.append(f'<span>{i:>3}: {line}</span>')
+    return "<br>".join(highlighted)
+
 
 def optimize_code(code: str) -> str:
     prompt = f"You are a python expert.Optimize the following Python code for better time and space complexity\n\n{code}:"
@@ -367,6 +394,8 @@ def explain_error_api():
     level=data.get('level','')
     explanation = explain_error(code, error_message,level)
     return jsonify({'message': explanation})
+
+
 
 
 if __name__ == '__main__':
