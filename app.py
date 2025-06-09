@@ -24,15 +24,22 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 from transformers import T5Tokenizer, T5ForConditionalGeneration
 from transformers import pipeline
 import torch
-from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
+from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline,AutoModelForSeq2SeqLM
 from flask_ngrok import run_with_ngrok
 
+# Load CodeT5p for error explanation
+t5_tokenizer = AutoTokenizer.from_pretrained("Salesforce/codet5p-220m")
+t5_model = AutoModelForSeq2SeqLM.from_pretrained("Salesforce/codet5p-220m")
+t5_model.to("cuda" if torch.cuda.is_available() else "cpu")
+
+# Load StarCoderBase for theory question generation
+starcoder_tokenizer = AutoTokenizer.from_pretrained("bigcode/starcoderbase-1b")
+starcoder_model = AutoModelForCausalLM.from_pretrained("bigcode/starcoderbase-1b")
+starcoder_model.to("cuda" if torch.cuda.is_available() else "cpu")
 
 # Load deepseek model for code optimization and question generation
 MODEL_NAME = "deepseek-ai/deepseek-coder-1.3b-instruct"
-
 device = 0 if torch.cuda.is_available() else -1
-
 tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
 model = AutoModelForCausalLM.from_pretrained(MODEL_NAME, device_map="auto" if device == 0 else None)
 
@@ -269,24 +276,17 @@ def generate_theory_questions(code: str) -> str:
                 Code:
                 {code}
             """
-
-        # Encode input
-        inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
-
-        # Generate output
-        outputs = model.generate(
+    try:
+        inputs = starcoder_tokenizer(prompt, return_tensors="pt").to(starcoder_model.device)
+        outputs = starcoder_model.generate(
             **inputs,
-            max_length=300,
-            do_sample=False,
-            pad_token_id=tokenizer.eos_token_id
+            max_length=512,
+            do_sample=True,
+            temperature=0.7,
+            pad_token_id=starcoder_tokenizer.eos_token_id
         )
-
-        # Decode full output (prompt + generated)
-        full_output = tokenizer.decode(outputs[0], skip_special_tokens=True)
-        
-        # Remove prompt from output to get only generated questions
+        full_output = starcoder_tokenizer.decode(outputs[0], skip_special_tokens=True)
         questions = full_output[len(prompt):].strip()
-
         return questions
 
     except Exception as e:
@@ -308,16 +308,14 @@ def explain_error(code: str, error_message: str, level: str) -> str:
 
     
     try:
-        inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
-        outputs = model.generate(
+        inputs = t5_tokenizer(prompt, return_tensors="pt").to(t5_model.device)
+        outputs = t5_model.generate(
             **inputs,
-            max_length=300,
+            max_length=512,
             do_sample=False,
-            pad_token_id=tokenizer.eos_token_id
+            pad_token_id=t5_tokenizer.eos_token_id
         )
-        generated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
-
-        # Remove the prompt part from generated_text to get clean explanation
+        generated_text = t5_tokenizer.decode(outputs[0], skip_special_tokens=True)
         message = generated_text[len(prompt):].strip()
         return message
 
