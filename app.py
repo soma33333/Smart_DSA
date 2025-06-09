@@ -298,8 +298,6 @@ def explain_error(code: str, error_message: str, level: str) -> str:
     prompt = f"""Analyze the following Python code and error. Then do two things:
                 1. Explain the error clearly (as if teaching a {level} student).
                 2. Provide a correct version of the code.
-                3. Generate one theory-based question from this code and give the correct answer.
-
                 Code:
                 {code}
 
