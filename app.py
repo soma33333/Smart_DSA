@@ -261,10 +261,11 @@ def run_code():
         import traceback
         tb = traceback.format_exc()
         print("ERROR while executing code:\n", tb)
-
+        error_line = extract_error_line_number(tb)
+        highlighted = highlight_code(code, error_line)
         return jsonify({
             "error": tb,
-            "highlighted_code": code
+            "highlighted_code": highlighted
         })
 
 
