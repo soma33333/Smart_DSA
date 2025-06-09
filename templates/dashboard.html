@@ -229,6 +229,7 @@
     function debugUserCode() {
         const outputText = outputDiv.innerText;
         const debugLevel = document.getElementById("debugLevel").value;
+        const code = editor.getValue().trim();
 
         if (!outputText.includes("Traceback") && !outputText.includes("Error")) {
             debugOutputDiv.innerText = "✅ No error found.";
