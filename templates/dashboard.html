@@ -199,31 +199,29 @@
     }
 
     function runDashboardCode() {
-        const code = editor.getValue();
-        outputDiv.innerText = "";
-        debugOutputDiv.innerText = "";
-        setLoading(runBtn, true);
+    const code = editor.getValue();
 
-        fetch("/run_code", {
-            method: "POST",
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ code: code })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.error) {
-                document.getElementById("output").innerHTML = "";
-                document.getElementById("debugOutput").innerHTML =`<strong>Error:</strong><br>${data.error}<br><br>${data.highlighted_code}`;
-            } else {
-                document.getElementById("debugOutput").innerHTML = `⚠️ Failed to run: ${err}`;
-            }
-        })
-        .catch(error => {
-            outputDiv.innerText = "⚠️ Could not run the code.";
-            console.error("Execution error:", error);
-        })
-        .finally(() => setLoading(runBtn, false));
-    }
+    fetch("/run_code", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: code })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.error) {
+            // Show full traceback error
+            document.getElementById("output").textContent = "";
+            document.getElementById("debugOutput").innerHTML = `<strong>Error:</strong><br><pre>${data.error}</pre>`;
+        } else {
+            document.getElementById("output").textContent = data.output;
+            document.getElementById("debugOutput").innerHTML = "";
+        }
+    })
+    .catch(err => {
+        document.getElementById("debugOutput").innerHTML = `<strong>Failed to send request:</strong><br>${err}`;
+    });
+}
+
 
     function debugUserCode() {
         const outputText = outputDiv.innerText;
