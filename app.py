@@ -84,22 +84,33 @@ def logout():
 @app.route('/skill-test', methods=['GET', 'POST'])
 def take_skill_test():
     questions = [
-        {"id": 1, "text": "What is the purpose of a for loop in Python?", "topic": "Loops", "options": ["A) Iterate over a sequence", "B) Store data", "C) Define functions", "D) Handle exceptions"]},
-        {"id": 2, "text": "Which of the following is an example of recursion?", "topic": "Recursion", "options": ["A) A function calling itself", "B) A for loop", "C) A variable declaration", "D) A conditional statement"]},
-        {"id": 3, "text": "What does the 'def' keyword do in Python?", "topic": "Functions", "options": ["A) Defines a function", "B) Defines a class", "C) Creates a variable", "D) Imports a module"]},
-        {"id": 4, "text": "What is inheritance in OOP?", "topic": "OOP", "options": ["A) A class inherits properties from another class", "B) A class is defined inside another class", "C) A class contains no methods", "D) A class can be instantiated multiple times"]},
-        {"id": 5, "text": "Which of the following is a primitive data type in Python?", "topic": "Data Types", "options": ["A) int", "B) list", "C) dict", "D) set"]},
-        {"id": 6, "text": "How do you declare an array in Python?", "topic": "Arrays", "options": ["A) array = [1, 2, 3]", "B) array = (1, 2, 3)", "C) array = {1, 2, 3}", "D) array = 1, 2, 3"]},
-        {"id": 7, "text": "Which function is used to reverse a string in Python?", "topic": "Strings", "options": ["A) reverse()", "B) reversed()", "C) flip()", "D) reverse_string()"]},
-        {"id": 8, "text": "Which algorithm is used to sort a list in ascending order in Python?", "topic": "Sorting", "options": ["A) Quick sort", "B) Bubble sort", "C) Merge sort", "D) All of the above"]},
-        {"id": 9, "text": "What does binary search do?", "topic": "Searching", "options": ["A) Finds an item in a sorted list", "B) Sorts a list", "C) Performs addition on numbers", "D) Multiplies two numbers"]},
-        {"id": 10, "text": "What is a stack data structure?", "topic": "Stacks", "options": ["A) LIFO (Last In, First Out) principle", "B) FIFO (First In, First Out) principle", "C) A collection of unordered elements", "D) A linear data structure with random access"]},
-        {"id": 11, "text": "What is the main feature of a queue data structure?", "topic": "Queues", "options": ["A) FIFO (First In, First Out) principle", "B) LIFO (Last In, First Out) principle", "C) Dynamic size", "D) Random access"]},
-        {"id": 12, "text": "Which operation does a linked list support?", "topic": "Linked Lists", "options": ["A) Insertion", "B) Deletion", "C) Traversal", "D) All of the above"]},
-        {"id": 13, "text": "What is a binary tree?", "topic": "Trees", "options": ["A) A tree where each node has at most two children", "B) A tree with only two nodes", "C) A tree with multiple children", "D) A tree with no children"]},
-        {"id": 14, "text": "What is a graph in data structures?", "topic": "Graphs", "options": ["A) A set of vertices connected by edges", "B) A linear data structure", "C) A tree with multiple branches", "D) A sorted list"]},
-        {"id": 15, "text": "What is hashing used for in data structures?", "topic": "Hashing", "options": ["A) Storing data in a fixed-size table", "B) Sorting data", "C) Searching data", "D) Storing data in a sequence"]},
+        # Beginner (5 questions)
+        {"id": 1, "text": "What is the purpose of a for loop in Python?", "topic": "Loops", "level": "Beginner","options": ["A) Iterate over a sequence", "B) Store data", "C) Define functions", "D) Handle exceptions"]},
+        {"id": 2, "text": "Which of the following is an example of recursion?", "topic": "Recursion", "level": "Beginner","options": ["A) A function calling itself", "B) A for loop", "C) A variable declaration", "D) A conditional statement"]},
+        {"id": 3, "text": "What does the 'def' keyword do in Python?", "topic": "Functions", "level": "Beginner","options": ["A) Defines a function", "B) Defines a class", "C) Creates a variable", "D) Imports a module"]},
+        {"id": 4, "text": "What is inheritance in OOP?", "topic": "OOP", "level": "Beginner","options": ["A) A class inherits properties from another class", "B) A class is defined inside another class",
+                 "C) A class contains no methods", "D) A class can be instantiated multiple times"]},
+        {"id": 5, "text": "Which of the following is a primitive data type in Python?", "topic": "Data Types", "level": "Beginner","options": ["A) int", "B) list", "C) dict", "D) set"]},
+
+        # Intermediate (5 questions)
+        {"id": 6, "text": "How do you declare an array in Python?", "topic": "Arrays", "level": "Intermediate","options": ["A) array = [1, 2, 3]", "B) array = (1, 2, 3)", "C) array = {1, 2, 3}", "D) array = 1, 2, 3"]},
+        {"id": 7, "text": "Which function is used to reverse a string in Python?", "topic": "Strings", "level": "Intermediate","options": ["A) reverse()", "B) reversed()", "C) flip()", "D) reverse_string()"]},
+        {"id": 8, "text": "Which algorithm is used to sort a list in ascending order in Python?", "topic": "Sorting", "level": "Intermediate","options": ["A) Quick sort", "B) Bubble sort", "C) Merge sort", "D) All of the above"]},
+        {"id": 9, "text": "What does binary search do?", "topic": "Searching", "level": "Intermediate","options": ["A) Finds an item in a sorted list", "B) Sorts a list", "C) Performs addition on numbers", "D) Multiplies two numbers"]},
+        {"id": 10, "text": "What is a stack data structure?", "topic": "Stacks", "level": "Intermediate","options": ["A) LIFO (Last In, First Out) principle", "B) FIFO (First In, First Out) principle", 
+                 "C) A collection of unordered elements", "D) A linear data structure with random access"]},
+
+        # Expert (5 questions)
+        {"id": 11, "text": "What is the main feature of a queue data structure?", "topic": "Queues", "level": "Expert","options": ["A) FIFO (First In, First Out) principle", "B) LIFO (Last In, First Out) principle",
+                 "C) Dynamic size", "D) Random access"]},
+        {"id": 12, "text": "Which operation does a linked list support?", "topic": "Linked Lists", "level": "Expert","options": ["A) Insertion", "B) Deletion", "C) Traversal", "D) All of the above"]},
+        {"id": 13, "text": "What is a binary tree?", "topic": "Trees", "level": "Expert","options": ["A) A tree where each node has at most two children", "B) A tree with only two nodes",
+                 "C) A tree with multiple children", "D) A tree with no children"]},
+        {"id": 14, "text": "What is a graph in data structures?", "topic": "Graphs", "level": "Expert","options": ["A) A set of vertices connected by edges", "B) A linear data structure",
+                 "C) A tree with multiple branches", "D) A sorted list"]},
+        {"id": 15, "text": "What is hashing used for in data structures?", "topic": "Hashing", "level": "Expert","options": ["A) Storing data in a fixed-size table", "B) Sorting data", "C) Searching data", "D) Storing data in a sequence"]},
     ]
+
 
     if request.method == 'POST':
         mcq_answers = {f"q{i}": request.form.get(f"q{i}") for i in range(1, 16)}
@@ -107,10 +118,23 @@ def take_skill_test():
         code_answer_2 = request.form.get("code2", "").strip()
 
         correct_answers = {
-            "1": "a", "2": "a", "3": "a", "4": "a", "5": "a",
-            "6": "a", "7": "b", "8": "d", "9": "a", "10": "a",
-            "11": "a", "12": "d", "13": "a", "14": "a", "15": "a"
+            "1": "a",  # For loop purpose: Iterate over a sequence
+            "2": "a",  # Recursion example: A function calling itself
+            "3": "a",  # 'def' keyword defines a function
+            "4": "a",  # Inheritance: class inherits properties from another
+            "5": "a",  # Primitive data type: int
+            "6": "a",  # Declare array: array = [1, 2, 3]
+            "7": "b",  # Reverse string: reversed()
+            "8": "d",  # Sorting algorithms: All of the above
+            "9": "a",  # Binary search finds item in sorted list
+            "10": "a", # Stack data structure is LIFO
+            "11": "a", # Queue data structure is FIFO
+            "12": "d", # Linked list supports all operations
+            "13": "a", # Binary tree: each node max two children
+            "14": "a", # Graph: set of vertices connected by edges
+            "15": "a", # Hashing: storing data in fixed-size table
         }
+
 
         topics = {
             "1": "Loops", "2": "Recursion", "3": "Functions", "4": "OOP",
