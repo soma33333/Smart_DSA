@@ -40,6 +40,7 @@
         {% for question in questions %}
         <div class="question">
             <p>{{ question.text }}</p>
+            <p><strong>Level:</strong> {{ question.level }}</p>
             {% for option in question.options %}
     <div>
         <input type="radio" name="q{{ question.id }}" value="{{ option[0]|lower }}" id="q{{ question.id }}_{{ option[0]|lower }}">
