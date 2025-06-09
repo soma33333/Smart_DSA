@@ -33,8 +33,8 @@ t5_model = AutoModelForSeq2SeqLM.from_pretrained("Salesforce/codet5p-220m")
 t5_model.to("cuda" if torch.cuda.is_available() else "cpu")
 
 # Load StarCoderBase for theory question generation
-starcoder_tokenizer = AutoTokenizer.from_pretrained("bigcode/starcoderbase-1b")
-starcoder_model = AutoModelForCausalLM.from_pretrained("bigcode/starcoderbase-1b")
+starcoder_tokenizer = AutoTokenizer.from_pretrained("google/flan-t5-base")
+starcoder_model = AutoModelForSeq2SeqLM.from_pretrained("google/flan-t5-base")
 starcoder_model.to("cuda" if torch.cuda.is_available() else "cpu")
 
 # Load deepseek model for code optimization and question generation
