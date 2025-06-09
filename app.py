@@ -359,7 +359,7 @@ def explain_error_api():
     error_message = data.get('error', '')
     level=data.get('level','')
     explanation = explain_error(code, error_message,level)
-    return jsonify({'explanation': explanation})
+    return jsonify({'message': explanation})
 
 
 if __name__ == '__main__':
