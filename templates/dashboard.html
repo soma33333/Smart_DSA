@@ -167,9 +167,6 @@
     </div>
 </div>
 
-<div id="highlighted-code" style="font-family:monospace; white-space:pre;"></div>
-<div id="error-message" style="color:red;"></div>
-
 <!-- Scripts -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js"></script>
 <script>
@@ -215,10 +212,10 @@
         .then(response => response.json())
         .then(data => {
             if (data.error) {
-                document.getElementById("error-message").textContent = data.error;
-                document.getElementById("highlighted-code").innerHTML = data.highlighted_code;
+                document.getElementById("output").innerHTML = "";
+                document.getElementById("debugOutput").innerHTML =`<strong>Error:</strong><br>${data.error}<br><br>${data.highlighted_code}`;
             } else {
-                document.getElementById("highlighted-code").innerHTML = data.highlighted_code;
+                document.getElementById("debugOutput").innerHTML = `⚠️ Failed to run: ${err}`;
             }
         })
         .catch(error => {
