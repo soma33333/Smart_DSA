@@ -24,7 +24,7 @@ from transformers import T5Tokenizer, T5ForConditionalGeneration
 from transformers import pipeline
 import torch
 
-from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, pipeline
+from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
 import torch
 
 # Load deepseek model for code optimization and question generation
@@ -33,7 +33,7 @@ MODEL_NAME = "deepseek-ai/deepseek-coder-1.3b-instruct"
 device = 0 if torch.cuda.is_available() else -1
 
 tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
-model = AutoModelForSeq2SeqLM.from_pretrained(MODEL_NAME, device_map="auto" if device == 0 else None)
+model = AutoModelForCausalLM.from_pretrained(MODEL_NAME, device_map="auto" if device == 0 else None)
 
 # Create pipelines for tasks
 code_opt_pipeline = pipeline("text2text-generation", model=model, tokenizer=tokenizer, device=device)
