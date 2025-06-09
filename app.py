@@ -12,6 +12,7 @@ os.makedirs(CACHE_DIR, exist_ok=True)
 
 
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify, make_response,flash
+from flask_cors import CORS
 from xhtml2pdf import pisa
 from io import BytesIO
 import contextlib
@@ -38,7 +39,7 @@ model = AutoModelForCausalLM.from_pretrained(MODEL_NAME, device_map="auto" if de
 
 app = Flask(__name__)
 app.secret_key = '123456'
-run_with_ngrok(app)
+CORS(app)
 
 # Hardcoded user
 USER_DATA = {
@@ -337,5 +338,6 @@ def explain_error_api():
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(host="0.0.0.0", port=5000)
+
 
