@@ -277,6 +277,7 @@
     })
     .then(response => response.json())
     .then(data => {
+        document.getElementById("optimizeModalTitle").innerText = "🧠 Optimized Code";
         modalContent.innerText = data.optimized_code || "⚠️ No optimized code received.";
         if (data.optimized_code) {
             replaceBtn.style.display = "inline-block";
