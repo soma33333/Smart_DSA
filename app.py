@@ -246,21 +246,27 @@ import re
 def run_code():
     data = request.get_json()
     code = data.get("code", "")
+
     output = io.StringIO()
 
     try:
         with contextlib.redirect_stdout(output):
-            exec(code, {})
-        return jsonify({"output": output.getvalue(), "highlighted_code": highlight_code(code)})
-    
-    except Exception:
-        error_trace = traceback.format_exc()
-        error_line = extract_error_line_number(error_trace)
-        highlighted = highlight_code(code, error_line)
+            exec(code, {})  # Be careful: no security checks!
         return jsonify({
-            "error": error_trace,
-            "highlighted_code": highlighted
+            "output": output.getvalue(),
+            "highlighted_code": code  # Replace with syntax highlighter if needed
         })
+    except Exception as e:
+        # Print to console for debugging
+        import traceback
+        tb = traceback.format_exc()
+        print("ERROR while executing code:\n", tb)
+
+        return jsonify({
+            "error": tb,
+            "highlighted_code": code
+        })
+
 
 def extract_error_line_number(trace):
     # Match: File "<string>", line 3, in <module>
