@@ -259,7 +259,7 @@ def optimize_code(code: str) -> str:
         
         outputs = model.generate(
             **inputs,
-            max_length=300,
+            max_length=500,
             do_sample=False,
             pad_token_id=tokenizer.eos_token_id
         )
@@ -313,7 +313,7 @@ def explain_error(code: str, error_message: str, level: str) -> str:
         
         outputs = model.generate(
             **inputs,
-            max_length=300,
+            max_length=500,
             do_sample=False,
             pad_token_id=tokenizer.eos_token_id
         )
