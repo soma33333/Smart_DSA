@@ -210,11 +210,9 @@
     .then(data => {
         if (data.error) {
             // Show full traceback error
-            document.getElementById("output").textContent = "";
-            document.getElementById("debugOutput").innerHTML = `<strong>Error:</strong><br><pre>${data.error}</pre>`;
+            document.getElementById("output").textContent = `<strong>Error:</strong><br><pre>${data.error}</pre>`;
         } else {
             document.getElementById("output").textContent = data.output;
-            document.getElementById("debugOutput").innerHTML = "";
         }
     })
     .catch(err => {
